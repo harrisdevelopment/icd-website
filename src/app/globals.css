@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/* Design tokens (BRIEF §3)                                            */
+/* ------------------------------------------------------------------ */
+@theme {
+  --color-ink-950: #08090b;
+  --color-ink-900: #0e1013;
+  --color-ink-800: #171a1f;
+  --color-line-dark: #2b3038;
+  --color-line-darker: #23272e;
+
+  --color-gold: #d4aa4f;
+  --color-gold-hover: #e9c774;
+  --color-gold-ink: #7e5f17;
+
+  --color-text-strong: #f5f6f7;
+  --color-text: #b9c0c8;
+  --color-text-soft: #d3d8de;
+  --color-text-muted: #8d959f;
+
+  --color-paper: #f3f2ee;
+  --color-paper-line: #dedbd3;
+  --color-ink-text: #14171b;
+  --color-ink-soft: #4a5058;
+
+  /* Extra values that appear in the approved designs */
+  --color-nav: #e4e7eb;
+  --color-text-dim: #a3abb4;
+  --color-ink-body: #3a3f46;
+  --color-paper-rule: #d5d1c7;
+  --color-pill-line: #c9c4b8;
+  --color-field-line: #8f8a7e;
+
+  --font-sans: var(--font-barlow), system-ui, sans-serif;
+  --font-display: var(--font-barlow-condensed), "Arial Narrow", sans-serif;
+
+  --radius-btn: 3px;
+  --radius-card: 4px;
+
+  --breakpoint-xs: 30rem;
+}
+
+/* Surface-aware colors. <Section> sets data-surface so shared components
+   (eyebrows, headings, cards, placeholders) pick the right color pair. */
+@theme inline {
+  --color-heading: var(--heading);
+  --color-body: var(--body);
+  --color-lead: var(--lead);
+  --color-accent: var(--accent);
+  --color-rule: var(--rule);
+  --color-card: var(--card);
+}
+
+:root {
+  --heading: var(--color-text-strong);
+  --body: var(--color-text);
+  --lead: var(--color-text-soft);
+  --accent: var(--color-gold);
+  --rule: var(--color-line-dark);
+  --card: var(--color-ink-800);
+}
+
+[data-surface="dark"] {
+  --heading: var(--color-text-strong);
+  --body: var(--color-text);
+  --lead: var(--color-text-soft);
+  --accent: var(--color-gold);
+  --rule: var(--color-line-dark);
+  --card: var(--color-ink-800);
+}
+
+[data-surface="light"] {
+  --heading: var(--color-ink-text);
+  --body: var(--color-ink-soft);
+  --lead: var(--color-ink-body);
+  --accent: var(--color-gold-ink);
+  --rule: var(--color-paper-line);
+  --card: #ffffff;
+}
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink-900);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Visible gold focus ring. On light surfaces gold fails contrast, so the
+   ring switches to gold-ink there. */
+:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* var(--accent) comes from the nearest data-surface, so a dark card nested in
+   a light section keeps the gold ring. */
+:focus-visible {
+  outline-color: var(--accent);
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink-900);
+}
+
+/* ------------------------------------------------------------------ */
+/* Type scale. Fluid between 375px and 1440px viewports.              */
+/* ------------------------------------------------------------------ */
+@utility t-hero {
+  font-size: clamp(2.75rem, 1.87rem + 3.756vw, 5.25rem);
+  line-height: 0.95;
+}
+@utility t-h1 {
+  font-size: clamp(2.75rem, 2.046rem + 3.005vw, 4.75rem);
+  line-height: 0.98;
+}
+@utility t-h1-sm {
+  font-size: clamp(2.625rem, 1.965rem + 2.817vw, 4.5rem);
+  line-height: 0.98;
+}
+@utility t-h2 {
+  font-size: clamp(2.25rem, 1.81rem + 1.878vw, 3.5rem);
+  line-height: 1;
+}
+@utility t-h2-md {
+  font-size: clamp(2.188rem, 1.813rem + 1.596vw, 3.25rem);
+  line-height: 1;
+}
+@utility t-h2-sm {
+  font-size: clamp(2.063rem, 1.732rem + 1.408vw, 3rem);
+  line-height: 1;
+}
+@utility t-h2-xs {
+  font-size: clamp(1.938rem, 1.651rem + 1.221vw, 2.75rem);
+  line-height: 1.02;
+}
+@utility t-h2-xxs {
+  font-size: clamp(1.813rem, 1.57rem + 1.033vw, 2.5rem);
+  line-height: 1;
+}
+@utility t-cta {
+  font-size: clamp(2.375rem, 1.715rem + 2.817vw, 4.25rem);
+  line-height: 1;
+}
+
+/* Placeholders the client still has to fill in (BRIEF §0.5). */
+.placeholder {
+  color: var(--accent);
+  text-decoration: underline dashed;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.placeholder-tag {
+  display: inline-block;
+  border: 1px dashed var(--color-gold);
+  border-radius: var(--radius-btn);
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-gold);
+  text-decoration: none;
+}

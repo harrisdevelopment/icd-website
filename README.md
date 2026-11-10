@@ -100,7 +100,7 @@ Vercel automatically marks Preview deployments `noindex`. The canonical URLs poi
 2. Import it in Vercel under the `harrisenterprises` team (framework: Next.js, defaults are fine).
 3. Add the three environment variables for Preview and Production.
 4. Share the Preview URL for client review.
-5. **Do not add `inncd.com` to the project until C360 Digital gives the go-ahead.** At cutover: add `inncd.com` and `www.inncd.com` in Project Settings, Domains; set `www` to redirect to the apex; confirm SSL is issued. (`next.config.ts` also redirects `www` to the apex as a safeguard.)
+5. **Do not add `inncd.com` to the project until C360 Digital gives the go-ahead.** At cutover: add `inncd.com` and `www.inncd.com` in Project Settings, Domains; set `inncd.com` to serve the site directly (primary, no redirect) and `www.inncd.com` to redirect to `inncd.com` (308); confirm SSL is issued. The www redirect lives only in Vercel's domain settings, not in the code. Do not also redirect in `next.config.ts`, and do not make `www` the primary domain, or the two will loop.
 6. After cutover, submit the live form and confirm it reaches `r.fuentes@inncd.com`.
 
 ## Quality checks

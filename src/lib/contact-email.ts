@@ -37,3 +37,46 @@ export function buildBody(data: ContactData): string {
   ];
   return lines.join("\n");
 }
+
+/** Email for a lead captured by the website chat agent (/api/lead). */
+export function buildLeadSubject(lead: import("./lead-schema").LeadData): string {
+  const tier = lead.lead_tier === "unrated" ? "" : ` (${lead.lead_tier.toUpperCase()})`;
+  return `Chat lead${tier}: ${oneLine(lead.project_type)} in ${oneLine(lead.project_city_state)}`;
+}
+
+export function buildLeadBody(lead: import("./lead-schema").LeadData): string {
+  const florida = lead.florida_project || isFloridaProject(lead.project_city_state);
+  const row = (label: string, value: string) => `${label}: ${value.trim() || "(not provided)"}`;
+
+  const lines = [
+    ...(florida ? ["FLORIDA PROJECT, LOOP IN EPIC", ""] : []),
+    "New lead from the ICD website chat assistant. The visitor agreed to share these details.",
+    "",
+    row("Lead rating", lead.lead_tier === "unrated" ? "" : lead.lead_tier.toUpperCase()),
+    row("Why", lead.lead_tier_reason),
+    "",
+    row("Full name", lead.full_name),
+    row("Company / agency", lead.company),
+    row("Role", lead.role),
+    row("Email", lead.email),
+    row("Phone", lead.phone),
+    row("Project type", lead.project_type),
+    row("Project city & state", lead.project_city_state),
+    row("Building type and size", lead.building_type_and_size),
+    row("Roof system", lead.roof_system),
+    row("Timeline", lead.timeline),
+    row("Solicitation or bid number", lead.solicitation_number),
+    row("Decision-maker status", lead.decision_maker_status),
+    row("Access requirements", lead.access_requirements),
+    "",
+    "Project details:",
+    lead.details,
+    "",
+    "Conversation summary:",
+    lead.conversation_summary || "(not provided)",
+    "",
+    "Questions the assistant could not answer (please address in follow-up):",
+    ...(lead.unanswered_questions.length ? lead.unanswered_questions.map((q) => `- ${q}`) : ["(none)"]),
+  ];
+  return lines.join("\n");
+}

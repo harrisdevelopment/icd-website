@@ -12,6 +12,7 @@
     "placeholders": "node scripts/list-placeholders.mjs"
   },
   "dependencies": {
+    "@elevenlabs/convai-widget-embed": "0.25.2",
     "next": "^16.4.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",

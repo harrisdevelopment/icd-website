@@ -21,6 +21,8 @@ export const site = {
   capabilityStatementLabel: "Download capability statement (PDF)",
   footerBlurb:
     "Government and commercial vendor, subcontractor, and teaming opportunities welcomed.",
+  /** ElevenLabs chat agent. Public ID. Set to "" to remove the chat widget. */
+  chatAgentId: "agent_4401m78e0j21e1x9g11s925fgmbx",
   ctaLabel: "Request a Proposal",
   ctaHref: "/contact",
 } as const;

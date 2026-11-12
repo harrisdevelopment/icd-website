@@ -1,6 +1,6 @@
 # Innovation Construction Development website
 
-Marketing site for Innovation Construction Development LLC (ICD), built by C360 Digital. 11 pages plus a privacy page and a 404. Every page is statically generated; the only server code is the contact form handler.
+Marketing site for Innovation Construction Development LLC (ICD), built by C360 Digital. 11 pages plus a privacy page and a 404. Every page is statically generated; the only server code is the contact form handler and the chat lead webhook.
 
 **Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · `next/font` (Barlow, Barlow Condensed) · `next/image` · zod · Resend
 
@@ -34,6 +34,7 @@ Set these in `.env.local` for local work, and in Vercel for **both Preview and P
 | `RESEND_API_KEY` | Resend API key |
 | `CONTACT_TO_EMAIL` | Where proposal requests are delivered. `r.fuentes@inncd.com` in production |
 | `CONTACT_FROM_EMAIL` | Sender. `ICD Website <website@inncd.com>` once inncd.com is verified in Resend |
+| `LEAD_WEBHOOK_SECRET` | Shared secret for the chat agent's lead webhook (see Chat assistant). Also turns the chat widget on |
 
 **Until inncd.com is verified in Resend** (it needs DNS records added at the domain), use Resend's test sender (`ICD Website <onboarding@resend.dev>`) and set `CONTACT_TO_EMAIL` to a test inbox, not Robert's. Switch both values when the domain is verified.
 
@@ -87,6 +88,17 @@ If you replace `logo-icd.png` or `hero.jpg`, run `npm run assets` to rebuild the
 - **Florida:** if the city/state says FL or Florida, the email starts with `FLORIDA PROJECT, LOOP IN EPIC`. It is still sent only to `CONTACT_TO_EMAIL`.
 - **Spam protection:** a hidden honeypot field (bots that fill it get a normal-looking success and nothing is sent) and a per-IP rate limit of 5 requests per 10 minutes (`src/lib/rate-limit.ts`). The limiter keeps its counts in server memory, so on Vercel each serverless instance counts separately. It slows casual abuse but is not a hard guarantee. If spam appears, move the counter to a shared store (Upstash Redis or Vercel KV) behind the same function, or add a CAPTCHA.
 - The success message and the page intro both contain `[RESPONSE TIME]`; change both in `content/contact.ts`.
+
+## Chat assistant (ElevenLabs)
+
+An ElevenLabs agent answers questions, qualifies visitors, and sends leads to ICD.
+
+- **Widget:** `src/components/ChatWidget.tsx`, mounted in the layout. The agent ID is `chatAgentId` in `content/site.ts` (it is public; set it to `""` to remove the chat). The widget code is bundled at a pinned version (`@elevenlabs/convai-widget-embed`) and loads only on the visitor's first scroll, tap, or key press (or after 15 seconds), so it does not affect page speed. Its appearance, text-only mode, and allowed domains are set in the ElevenLabs dashboard.
+- **Go-live gate:** the widget only renders when `LEAD_WEBHOOK_SECRET` is set at build time, so the chat cannot go live before lead delivery works. After adding the variable in Vercel, redeploy.
+- **Lead webhook:** `POST /api/lead` (`src/app/api/lead/route.ts`). In ElevenLabs, add a server tool `submit_lead` that posts JSON to `https://inncd.com/api/lead` with the header `x-lead-secret: <LEAD_WEBHOOK_SECRET>` (`Authorization: Bearer <secret>` also works). Fields are defined in `src/lib/lead-schema.ts`: `full_name`, `email`, `phone`, `project_city_state`, `details`, and `consent_to_share: true` are required; the rest are optional. Invalid calls return a 400 with a plain-English message so the agent can ask the visitor for what is missing.
+- **What Robert receives:** an email to `CONTACT_TO_EMAIL` with Reply-To set to the lead, the subject `Chat lead (HOT): {Project type} in {City, State}`, the lead rating and reason, every field, the conversation summary, and the questions the agent could not answer. Florida leads start with `FLORIDA PROJECT, LOOP IN EPIC`.
+- **Safeguards:** the secret is compared in constant time; the endpoint as a whole is limited to 30 calls per 10 minutes; the same email and phone within 10 minutes is treated as a retry and not emailed twice (a failed send is not counted, so retries still deliver).
+- **Before launch:** allow only `inncd.com` and `www.inncd.com` in the agent's security settings, and update the privacy policy to mention that chat conversations are processed by ElevenLabs.
 
 ## SEO
 
